@@ -29,6 +29,7 @@ ref table DQ_Cleaning
 ref table DQ_UnmatchedPoints
 ref table ExpectedResults
 ref table _Measures
+ref table 'Top N'
 ref expression DataFolder
 ref expression fnReadCsv
 ref expression fnNullIfEmpty

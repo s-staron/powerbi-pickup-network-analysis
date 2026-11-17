@@ -96,6 +96,86 @@ table _Measures
 		displayFolder: 4 Time intelligence
 		lineageTag: b540f190-eadd-54cf-800c-2743a15f6fa0
 
+	/// Planned parcel volume. Targets exist per region and month, so the measure is blank when the selection is narrowed to points; select whole months for a fair comparison.
+	measure 'Target Parcels' = IF(ISFILTERED(DimPickupPoint), BLANK(), SUM(Target[TargetParcels]))
+		formatString: #,##0
+		displayFolder: 5 Targets
+		lineageTag: cda6c2dd-ee0f-58e0-86ce-7e3326a01c7f
+
+	/// Actual parcels minus target, divided by target. Negative means below plan.
+	measure 'Parcels vs Target %' = DIVIDE([Parcels Arrived] - [Target Parcels], [Target Parcels])
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 5 Targets
+		lineageTag: 7551d501-5b58-5ee1-8764-98ad69cdbfb0
+
+	/// Target pickup-within-3-days rate, weighted by the planned parcels of each region and month.
+	measure 'Target Pickup Within 3 Days Rate' = IF(ISFILTERED(DimPickupPoint), BLANK(), DIVIDE(SUMX(Target, Target[TargetPickup3dRate] * Target[TargetParcels]), SUM(Target[TargetParcels])))
+		formatString: 0.0%
+		displayFolder: 5 Targets
+		lineageTag: 046fc256-2ce8-52bb-902d-d220503af0a1
+
+	/// Pickup-within-3-days rate minus its target, in percentage points. Negative means the target is missed.
+	measure 'Pickup 3D vs Target pp' = IF(ISBLANK([Target Pickup Within 3 Days Rate]), BLANK(), [Pickup Within 3 Days Rate] - [Target Pickup Within 3 Days Rate])
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 5 Targets
+		lineageTag: 21cb4f66-48ee-5245-9150-aa9a53331864
+
+	/// Target return-to-sender rate, weighted by planned parcels. Lower is better.
+	measure 'Target Return Rate' = IF(ISFILTERED(DimPickupPoint), BLANK(), DIVIDE(SUMX(Target, Target[TargetReturnRate] * Target[TargetParcels]), SUM(Target[TargetParcels])))
+		formatString: 0.0%
+		displayFolder: 5 Targets
+		lineageTag: e12a05dc-1399-5863-a3c9-7520b7874a0e
+
+	/// Share of the whole network (ALL removes the region and point filters; the date filter stays). Under row-level security the network means the regions the user may see.
+	measure 'Parcels % of Network' = DIVIDE([Parcels Arrived], CALCULATE([Parcels Arrived], ALL(DimPickupPoint), ALL(DimRegion)))
+		formatString: 0.0%
+		displayFolder: 6 Shares
+		lineageTag: 77288ab5-c96e-52d5-99c8-593177da5584
+
+	/// Share of what the slicers currently select (ALLSELECTED keeps slicer filters and removes the visual's own row filters).
+	measure 'Parcels % of Selection' = DIVIDE([Parcels Arrived], CALCULATE([Parcels Arrived], ALLSELECTED(DimPickupPoint), ALLSELECTED(DimRegion)))
+		formatString: 0.0%
+		displayFolder: 6 Shares
+		lineageTag: 15b99685-8bae-5d2c-8d45-4af0696974b3
+
+	/// How many points the Top N and Bottom N charts show; chosen with the Top N slicer, default 10.
+	measure 'Top N Value' = SELECTEDVALUE('Top N'[Top N], 10)
+		formatString: 0
+		displayFolder: 7 Ranking
+		lineageTag: 9d9bc69e-8d65-55f0-b070-626f5f29f536
+
+	/// Utilisation of a point if it is among the N most utilised points of the selection, otherwise blank.
+	measure 'Top N Utilisation' =
+			VAR _rank =
+			    RANKX(FILTER(ALLSELECTED(DimPickupPoint), DimPickupPoint[IsKnownPoint] = TRUE()), [Utilisation], , DESC, DENSE)
+			RETURN
+			    IF(NOT ISBLANK([Utilisation]) && _rank <= [Top N Value], [Utilisation])
+		formatString: 0%
+		displayFolder: 7 Ranking
+		lineageTag: 9364d851-6eb1-5f5d-9a80-b19cef2e64b9
+
+	/// Utilisation of a point if it is among the N least utilised points of the selection, otherwise blank.
+	measure 'Bottom N Utilisation' =
+			VAR _rank =
+			    RANKX(FILTER(ALLSELECTED(DimPickupPoint), DimPickupPoint[IsKnownPoint] = TRUE() && NOT ISBLANK([Utilisation])), [Utilisation], , ASC, DENSE)
+			RETURN
+			    IF(NOT ISBLANK([Utilisation]) && _rank <= [Top N Value], [Utilisation])
+		formatString: 0%
+		displayFolder: 7 Ranking
+		lineageTag: 265971d8-1578-5e3c-8059-6b724b342e3c
+
+	/// Number of points with utilisation of 85% or more in the selected period (assumed threshold).
+	measure 'Overloaded Points' =
+			COUNTROWS(
+			    FILTER(
+			        VALUES(DimPickupPoint[PointKey]),
+			        NOT ISBLANK([Utilisation]) && [Utilisation] >= 0.85
+			    )
+			)
+		formatString: 0
+		displayFolder: 7 Ranking
+		lineageTag: 546f0448-97ce-5156-923c-caa78e9de456
+
 	column Placeholder
 		dataType: string
 		isHidden
