@@ -1,7 +1,7 @@
+/// A regional manager sees only the regions listed for their e-mail address in UserRegion.
 role 'Regional Manager'
 	modelPermission: read
 
-	/// A regional manager sees only the regions listed for their e-mail address in UserRegion.
 	tablePermission DimRegion = DimRegion[Region] IN SELECTCOLUMNS(FILTER(UserRegion, UserRegion[Email] = USERPRINCIPALNAME()), "Region", UserRegion[Region])
 	tablePermission UserRegion = UserRegion[Email] = USERPRINCIPALNAME()
 	tablePermission ExpectedResults = FALSE()
