@@ -1,0 +1,161 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "reconciliation",
+  "position": {
+    "x": 16,
+    "y": 380,
+    "z": 5000,
+    "height": 324,
+    "width": 1248,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ExpectedResults"
+                    }
+                  },
+                  "Property": "KpiId"
+                }
+              },
+              "queryRef": "ExpectedResults.KpiId",
+              "nativeQueryRef": "KpiId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ExpectedResults"
+                    }
+                  },
+                  "Property": "Scope"
+                }
+              },
+              "queryRef": "ExpectedResults.Scope",
+              "nativeQueryRef": "Scope"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ExpectedResults"
+                    }
+                  },
+                  "Property": "ScopeValue"
+                }
+              },
+              "queryRef": "ExpectedResults.ScopeValue",
+              "nativeQueryRef": "ScopeValue"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ExpectedResults"
+                    }
+                  },
+                  "Property": "ExpectedValue"
+                }
+              },
+              "queryRef": "ExpectedResults.ExpectedValue",
+              "nativeQueryRef": "ExpectedValue"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Check Actual"
+                }
+              },
+              "queryRef": "_Measures.Check Actual",
+              "nativeQueryRef": "Check Actual"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Check Status"
+                }
+              },
+              "queryRef": "_Measures.Check Status",
+              "nativeQueryRef": "Check Status"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "ExpectedResults"
+                  }
+                },
+                "Property": "RowOrder"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": false
+      }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Table comparing expected values from the raw files with the values calculated by the model, with an OK or CHECK status per row'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Model vs expected totals (OK = equal)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "cleaning_steps",
+  "position": {
+    "x": 16,
+    "y": 64,
+    "z": 2000,
+    "height": 300,
+    "width": 760,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DQ_Cleaning"
+                    }
+                  },
+                  "Property": "StepOrder"
+                }
+              },
+              "queryRef": "DQ_Cleaning.StepOrder",
+              "nativeQueryRef": "StepOrder"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DQ_Cleaning"
+                    }
+                  },
+                  "Property": "DataSet"
+                }
+              },
+              "queryRef": "DQ_Cleaning.DataSet",
+              "nativeQueryRef": "DataSet"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DQ_Cleaning"
+                    }
+                  },
+                  "Property": "Step"
+                }
+              },
+              "queryRef": "DQ_Cleaning.Step",
+              "nativeQueryRef": "Step"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DQ_Cleaning"
+                    }
+                  },
+                  "Property": "Rows"
+                }
+              },
+              "queryRef": "DQ_Cleaning.Rows",
+              "nativeQueryRef": "Rows"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DQ_Cleaning"
+                    }
+                  },
+                  "Property": "Handling"
+                }
+              },
+              "queryRef": "DQ_Cleaning.Handling",
+              "nativeQueryRef": "Handling"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "DQ_Cleaning"
+                  }
+                },
+                "Property": "StepOrder"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": false
+      }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Table with the number of rows at each cleaning step and how each issue is handled'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Rows per cleaning step'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "unmatched_points",
+  "position": {
+    "x": 792,
+    "y": 64,
+    "z": 3000,
+    "height": 140,
+    "width": 472,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DQ_UnmatchedPoints"
+                    }
+                  },
+                  "Property": "SourcePointId"
+                }
+              },
+              "queryRef": "DQ_UnmatchedPoints.SourcePointId",
+              "nativeQueryRef": "SourcePointId"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DQ_UnmatchedPoints"
+                    }
+                  },
+                  "Property": "ParcelRows"
+                }
+              },
+              "queryRef": "DQ_UnmatchedPoints.ParcelRows",
+              "nativeQueryRef": "ParcelRows"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Table of point IDs in the parcel export that are missing from the points table'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Unmatched point IDs'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
