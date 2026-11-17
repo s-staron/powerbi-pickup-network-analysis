@@ -66,6 +66,36 @@ table _Measures
 		displayFolder: 3 Capacity
 		lineageTag: 71348e2e-307c-5119-80e4-2e681114a28a
 
+	/// Parcels arrived from the first day of the month up to the last selected date.
+	measure 'Parcels MTD' = TOTALMTD([Parcels Arrived], DimDate[Date])
+		formatString: #,##0
+		displayFolder: 4 Time intelligence
+		lineageTag: 0b33ccfd-bfd6-5b67-a451-5a6ec6711285
+
+	/// Parcels arrived from 1 January up to the last selected date. The first year of data starts in July.
+	measure 'Parcels YTD' = TOTALYTD([Parcels Arrived], DimDate[Date])
+		formatString: #,##0
+		displayFolder: 4 Time intelligence
+		lineageTag: 9104ed0e-786b-5cca-9af3-5b6639b2de7f
+
+	/// Parcels arrived in the same period one year earlier. Blank where the previous year has no data (before July 2025).
+	measure 'Parcels PY' = CALCULATE([Parcels Arrived], SAMEPERIODLASTYEAR(DimDate[Date]))
+		formatString: #,##0
+		displayFolder: 4 Time intelligence
+		lineageTag: ce99e7f3-ed28-5c0c-9925-6c0fa400832e
+
+	/// Change in parcels versus the same period one year earlier, as a percentage.
+	measure 'Parcels YoY %' = DIVIDE([Parcels Arrived] - [Parcels PY], [Parcels PY])
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: 4 Time intelligence
+		lineageTag: 19154939-5431-55bd-b93c-e9d72113d8bb
+
+	/// Parcels arrived in the three months that end on the last selected date.
+	measure 'Parcels Rolling 3M' = CALCULATE([Parcels Arrived], DATESINPERIOD(DimDate[Date], MAX(DimDate[Date]), -3, MONTH))
+		formatString: #,##0
+		displayFolder: 4 Time intelligence
+		lineageTag: b540f190-eadd-54cf-800c-2743a15f6fa0
+
 	column Placeholder
 		dataType: string
 		isHidden
