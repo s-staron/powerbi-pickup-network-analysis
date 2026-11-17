@@ -176,6 +176,130 @@ table _Measures
 		displayFolder: 7 Ranking
 		lineageTag: 546f0448-97ce-5156-923c-caa78e9de456
 
+	/// Dynamic page title that names the selected region and period.
+	measure 'Title Overview' =
+			VAR _region =
+			    IF(HASONEVALUE(DimRegion[Region]), SELECTEDVALUE(DimRegion[Region]),
+			        IF(ISFILTERED(DimRegion[Region]), "selected regions", "all regions"))
+			VAR _from = FORMAT(MIN(DimDate[Date]), "mmm yyyy")
+			VAR _to = FORMAT(MAX(DimDate[Date]), "mmm yyyy")
+			RETURN
+			    "Network overview: " & _region & ", " & IF(_from = _to, _from, _from & " to " & _to)
+		displayFolder: 8 Titles and formatting
+		lineageTag: a90c8a06-8d21-5ebd-91df-17fe21cae7c5
+
+	/// Dynamic title of the drill-through page; shows the name of the selected point.
+	measure 'Title Point Detail' = "Point detail: " & SELECTEDVALUE(DimPickupPoint[PointName], "all points (drill through from a point to see one)")
+		displayFolder: 8 Titles and formatting
+		lineageTag: 672bd685-ae16-5e2a-aaec-c4adcce9f7b5
+
+	/// Background colour for conditional formatting: red for 85% or more, amber for under 15%. A text flag is shown next to it so colour is never the only signal.
+	measure 'Utilisation Color' =
+			SWITCH(
+			    TRUE(),
+			    ISBLANK([Utilisation]), BLANK(),
+			    [Utilisation] >= 0.85, "#F4B8B0",
+			    [Utilisation] < 0.15, "#FCE3A7",
+			    BLANK()
+			)
+		displayFolder: 8 Titles and formatting
+		lineageTag: 01c21def-eef9-59a3-a49a-567573a0701d
+
+	/// Value the model gives for the KPI, scope and scope value of the current ExpectedResults row.
+	measure 'Check Actual' =
+			VAR _kpi = SELECTEDVALUE(ExpectedResults[KpiId])
+			VAR _scope = SELECTEDVALUE(ExpectedResults[Scope])
+			VAR _value = SELECTEDVALUE(ExpectedResults[ScopeValue])
+			RETURN
+			    SWITCH(
+			        _scope,
+			        "Network", SWITCH(
+			        _kpi,
+			        "parcels_arrived", [Parcels Arrived],
+			        "parcels_collected", [Parcels Collected],
+			        "parcels_returned", [Parcels Returned],
+			        "collected_within_3d", [Collected Within 3 Days],
+			        "pickup_rate", [Pickup Rate],
+			        "pickup_within_3d_rate", [Pickup Within 3 Days Rate],
+			        "return_rate", [Return To Sender Rate],
+			        "avg_dwell_days", [Avg Dwell Days],
+			        "utilisation", [Utilisation],
+			        "overloaded_points", [Overloaded Points],
+			        "target_parcels", [Target Parcels],
+			        "target_pickup_3d_rate", [Target Pickup Within 3 Days Rate],
+			        "target_return_rate", [Target Return Rate],
+			        "parcels_vs_target_pct", [Parcels vs Target %],
+			        "pickup_3d_vs_target_pp", [Pickup 3D vs Target pp],
+			        "parcels_mtd", [Parcels MTD],
+			        "parcels_ytd", [Parcels YTD],
+			        "parcels_py", [Parcels PY],
+			        "parcels_yoy_pct", [Parcels YoY %],
+			        "parcels_rolling_3m", [Parcels Rolling 3M],
+			        BLANK()
+			    ),
+			        "Region", CALCULATE(SWITCH(
+			        _kpi,
+			        "parcels_arrived", [Parcels Arrived],
+			        "parcels_collected", [Parcels Collected],
+			        "parcels_returned", [Parcels Returned],
+			        "collected_within_3d", [Collected Within 3 Days],
+			        "pickup_rate", [Pickup Rate],
+			        "pickup_within_3d_rate", [Pickup Within 3 Days Rate],
+			        "return_rate", [Return To Sender Rate],
+			        "avg_dwell_days", [Avg Dwell Days],
+			        "utilisation", [Utilisation],
+			        "overloaded_points", [Overloaded Points],
+			        "target_parcels", [Target Parcels],
+			        "target_pickup_3d_rate", [Target Pickup Within 3 Days Rate],
+			        "target_return_rate", [Target Return Rate],
+			        "parcels_vs_target_pct", [Parcels vs Target %],
+			        "pickup_3d_vs_target_pp", [Pickup 3D vs Target pp],
+			        "parcels_mtd", [Parcels MTD],
+			        "parcels_ytd", [Parcels YTD],
+			        "parcels_py", [Parcels PY],
+			        "parcels_yoy_pct", [Parcels YoY %],
+			        "parcels_rolling_3m", [Parcels Rolling 3M],
+			        BLANK()
+			    ), TREATAS({_value}, DimRegion[Region])),
+			        "Month", CALCULATE(SWITCH(
+			        _kpi,
+			        "parcels_arrived", [Parcels Arrived],
+			        "parcels_collected", [Parcels Collected],
+			        "parcels_returned", [Parcels Returned],
+			        "collected_within_3d", [Collected Within 3 Days],
+			        "pickup_rate", [Pickup Rate],
+			        "pickup_within_3d_rate", [Pickup Within 3 Days Rate],
+			        "return_rate", [Return To Sender Rate],
+			        "avg_dwell_days", [Avg Dwell Days],
+			        "utilisation", [Utilisation],
+			        "overloaded_points", [Overloaded Points],
+			        "target_parcels", [Target Parcels],
+			        "target_pickup_3d_rate", [Target Pickup Within 3 Days Rate],
+			        "target_return_rate", [Target Return Rate],
+			        "parcels_vs_target_pct", [Parcels vs Target %],
+			        "pickup_3d_vs_target_pp", [Pickup 3D vs Target pp],
+			        "parcels_mtd", [Parcels MTD],
+			        "parcels_ytd", [Parcels YTD],
+			        "parcels_py", [Parcels PY],
+			        "parcels_yoy_pct", [Parcels YoY %],
+			        "parcels_rolling_3m", [Parcels Rolling 3M],
+			        BLANK()
+			    ), TREATAS({_value}, DimDate[YearMonth])),
+			        "DataQuality", CALCULATE(SUM(DQ_Cleaning[Rows]), DQ_Cleaning[StepKey] = _kpi)
+			    )
+		formatString: General Number
+		displayFolder: 9 Reconciliation
+		lineageTag: 2bbbeb16-23ee-5204-892f-5bfcaa47b3e4
+
+	/// OK when the model value equals the expected value from the raw files (tolerance 0.000001), otherwise CHECK.
+	measure 'Check Status' =
+			VAR _expected = SELECTEDVALUE(ExpectedResults[ExpectedValue])
+			VAR _actual = [Check Actual]
+			RETURN
+			    IF(ISBLANK(_actual), "NO MODEL VALUE", IF(ABS(_actual - _expected) <= 0.000001, "OK", "CHECK"))
+		displayFolder: 9 Reconciliation
+		lineageTag: 67338726-94e2-5d60-9278-4c8272faf80b
+
 	column Placeholder
 		dataType: string
 		isHidden

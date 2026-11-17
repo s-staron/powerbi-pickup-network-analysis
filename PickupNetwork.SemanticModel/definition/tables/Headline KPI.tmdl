@@ -1,0 +1,46 @@
+/// Field parameter: lets the viewer switch the headline card and trend line between five KPIs.
+table 'Headline KPI'
+	lineageTag: f721599c-4de9-59e5-ad73-6030dbfc5107
+
+	column 'Headline KPI'
+		dataType: string
+		lineageTag: 4d8f91e3-dbe2-5d32-8e4b-35df7823291c
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Headline KPI Order'
+
+		relatedColumnDetails
+			groupByColumn: 'Headline KPI Fields'
+
+	column 'Headline KPI Fields'
+		isHidden
+		dataType: string
+		lineageTag: 2a69be25-5fda-59cc-93f5-87f54048c824
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Headline KPI Order'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+	column 'Headline KPI Order'
+		isHidden
+		dataType: int64
+		formatString: 0
+		lineageTag: 73b053a0-32e0-5584-bc67-3cd75034d579
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+	partition 'Headline KPI' = calculated
+		mode: import
+		source =
+				{
+				    ("Pickup within 3 days", NAMEOF('_Measures'[Pickup Within 3 Days Rate]), 0),
+				    ("Return-to-sender rate", NAMEOF('_Measures'[Return To Sender Rate]), 1),
+				    ("Utilisation", NAMEOF('_Measures'[Utilisation]), 2),
+				    ("Parcels arrived", NAMEOF('_Measures'[Parcels Arrived]), 3),
+				    ("Average dwell days", NAMEOF('_Measures'[Avg Dwell Days]), 4)
+				}

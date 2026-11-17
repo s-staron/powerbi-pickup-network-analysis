@@ -30,6 +30,7 @@ ref table DQ_UnmatchedPoints
 ref table ExpectedResults
 ref table _Measures
 ref table 'Top N'
+ref table 'Headline KPI'
 ref expression DataFolder
 ref expression fnReadCsv
 ref expression fnNullIfEmpty
