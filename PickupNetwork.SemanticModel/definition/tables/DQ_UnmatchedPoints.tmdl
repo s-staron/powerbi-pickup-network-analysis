@@ -1,0 +1,32 @@
+/// Point IDs that appear in the parcel export but not in the points export, with the number of parcel rows. Grain: one unmatched point ID.
+table DQ_UnmatchedPoints
+	lineageTag: d8446645-a196-5f52-9b67-1e015c7447e3
+
+	/// Point ID as exported.
+	column SourcePointId
+		dataType: string
+		lineageTag: c520987e-3781-5f5f-ba3a-6617aed805c0
+		summarizeBy: none
+		sourceColumn: SourcePointId
+
+	/// Parcel rows (after removing duplicates) for that point ID.
+	column ParcelRows
+		dataType: int64
+		formatString: #,##0
+		lineageTag: a46027e0-75dd-53c8-9fe4-303d47431852
+		summarizeBy: none
+		sourceColumn: ParcelRows
+
+	partition DQ_UnmatchedPoints = m
+		mode: import
+		source =
+				let
+				    KnownIds = List.Buffer(Table.Column(stg_PickupPoints_Raw, "point_id")),
+				    Unmatched = Table.SelectRows(stg_Parcels_Deduped, each not List.Contains(KnownIds, [point_id])),
+				    Grouped = Table.Group(Unmatched, {"point_id"}, {{"ParcelRows", each Table.RowCount(_), Int64.Type}}),
+				    #"Rename columns" = Table.RenameColumns(Grouped, {{"point_id", "SourcePointId"}}),
+				    #"Set types" = Table.TransformColumnTypes(#"Rename columns", {{"SourcePointId", type text}})
+				in
+				    #"Set types"
+
+	annotation PBI_ResultType = Table

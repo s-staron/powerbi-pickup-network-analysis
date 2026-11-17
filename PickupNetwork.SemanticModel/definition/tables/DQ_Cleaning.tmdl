@@ -1,0 +1,79 @@
+/// Row counts per cleaning step, computed in Power Query while the data is loaded. Grain: one cleaning step or data-quality count. Feeds the Data quality and reconciliation page.
+table DQ_Cleaning
+	lineageTag: 0b56ef09-b63f-562a-8f34-00e9fc3fb013
+
+	/// Order of the step on the page.
+	column StepOrder
+		dataType: int64
+		formatString: 0
+		lineageTag: 0ac48f9c-cd62-559d-9f9d-b5a8faa5da73
+		summarizeBy: none
+		sourceColumn: StepOrder
+
+	/// Parcels or Points.
+	column DataSet
+		dataType: string
+		lineageTag: ff6f4435-9b4f-5006-8fb6-beed4e7fea5f
+		summarizeBy: none
+		sourceColumn: DataSet
+
+	/// Key that matches kpi_id in expected_results.csv.
+	column StepKey
+		dataType: string
+		isHidden
+		lineageTag: 8af1d376-9551-5e9d-bf96-94cfa21fe7b8
+		summarizeBy: none
+		sourceColumn: StepKey
+
+	/// What was counted or done.
+	column Step
+		dataType: string
+		lineageTag: 7efa6aec-2551-537b-8e83-7123aa3b1965
+		summarizeBy: none
+		sourceColumn: Step
+
+	/// Number of rows.
+	column Rows
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 625e2e0b-b80b-537c-bde9-82cb8d21e6d7
+		summarizeBy: none
+		sourceColumn: Rows
+
+	/// How the issue is handled in the model.
+	column Handling
+		dataType: string
+		lineageTag: a169e752-3e13-5836-b6a4-cbd8166b12d7
+		summarizeBy: none
+		sourceColumn: Handling
+
+	partition DQ_Cleaning = m
+		mode: import
+		source =
+				let
+				    RawRows = Table.RowCount(stg_Parcels_Raw),
+				    DedupedRows = Table.RowCount(stg_Parcels_Deduped),
+				    KnownIds = List.Buffer(Table.Column(stg_PickupPoints_Raw, "point_id")),
+				    NonIsoRows = Table.RowCount(Table.SelectRows(stg_Parcels_Deduped, each Text.Contains([arrival_ts], "."))),
+				    ReturnedNoPickup = Table.RowCount(Table.SelectRows(stg_Parcels_Deduped, each [status] = "Returned" and fnNullIfEmpty([pickup_ts]) = null)),
+				    UnmatchedRows = Table.SelectRows(stg_Parcels_Deduped, each not List.Contains(KnownIds, [point_id])),
+				    CityVariants = Table.RowCount(Table.SelectRows(DimPickupPoint, each [IsKnownPoint] and [CityAsExported] <> [City])),
+				    DottedOpening = Table.RowCount(Table.SelectRows(stg_PickupPoints_Raw, each Text.Contains([opening_date], "."))),
+				    Steps = {
+				        {1, "Parcels", "dq_raw_rows", "Rows read from parcels_export.csv", RawRows, "Loaded as text, nothing changed"},
+				        {2, "Parcels", "dq_duplicates_removed", "R1 Exact duplicate rows removed", RawRows - DedupedRows, "Removed (Table.Distinct on all columns)"},
+				        {3, "Parcels", "dq_rows_after_dedupe", "Rows after removing duplicates", DedupedRows, "Input for the fact table"},
+				        {4, "Parcels", "dq_non_iso_timestamp_rows", "R2 Rows with dd.MM.yyyy timestamps", NonIsoRows, "Parsed with an explicit format, kept"},
+				        {5, "Parcels", "dq_returned_without_pickup", "R3 Returned parcels without a pickup time", ReturnedNoPickup, "Pickup time set to null, kept; dwell time uses the return time"},
+				        {6, "Parcels", "dq_unmatched_point_rows", "R4 Rows whose point ID is not in the points table", Table.RowCount(UnmatchedRows), "Kept and mapped to PP-UNKNOWN (region Unassigned)"},
+				        {7, "Parcels", "dq_rows_in_fact", "Rows loaded into FactParcel", Table.RowCount(FactParcel), "Final fact table"},
+				        {8, "Points", "dq_points_raw_rows", "Rows read from pickup_points_export.csv", Table.RowCount(stg_PickupPoints_Raw), "Loaded as text"},
+				        {9, "Points", "dq_point_city_variants", "R5 Points whose city spelling was standardised", CityVariants, "Mapped with city_mapping.csv"},
+				        {10, "Points", "dq_point_dotted_opening_dates", "R6 Points with dd.MM.yyyy opening dates", DottedOpening, "Parsed with an explicit format"},
+				        {11, "Points", "dq_unmatched_point_ids", "R4 Distinct point IDs missing from the points table", List.Count(List.Distinct(Table.Column(UnmatchedRows, "point_id"))), "Listed in DQ_UnmatchedPoints"}
+				    },
+				    AsTable = #table(type table [StepOrder = Int64.Type, DataSet = text, StepKey = text, Step = text, Rows = Int64.Type, Handling = text], Steps)
+				in
+				    AsTable
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,61 @@
+/// Expected KPI values recomputed from the raw CSV files by validation/reconcile.py. Used only on the reconciliation page. Grain: one KPI for one scope (network, region, month or data-quality count).
+table ExpectedResults
+	lineageTag: 5d4698ff-4b99-51d7-a9e3-fd2ba2852d31
+
+	/// KPI identifier, matches the measure it is compared with.
+	column KpiId
+		dataType: string
+		lineageTag: aa11ce85-d896-5ffc-9741-200483435db8
+		summarizeBy: none
+		sourceColumn: KpiId
+
+	/// Network, Region, Month or DataQuality.
+	column Scope
+		dataType: string
+		lineageTag: 341147e5-cb31-5053-8689-0e0c301cea51
+		summarizeBy: none
+		sourceColumn: Scope
+
+	/// All, a region name, a month (yyyy-MM).
+	column ScopeValue
+		dataType: string
+		lineageTag: 38e0c265-8525-5533-bb6c-f2f411548271
+		summarizeBy: none
+		sourceColumn: ScopeValue
+
+	/// Value computed outside Power BI.
+	column ExpectedValue
+		dataType: double
+		formatString: General Number
+		lineageTag: a00d6228-0940-550e-8537-eda70c8360a0
+		summarizeBy: none
+		sourceColumn: ExpectedValue
+
+	/// count, ratio, ratio_diff or days.
+	column Unit
+		dataType: string
+		lineageTag: 6d43a436-9acc-5c54-a3c7-d4c1fe524860
+		summarizeBy: none
+		sourceColumn: Unit
+
+	/// Row order of the file.
+	column RowOrder
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: b93728ee-7d37-5576-998d-b7446e762d48
+		summarizeBy: none
+		sourceColumn: RowOrder
+
+	partition ExpectedResults = m
+		mode: import
+		source =
+				let
+				    Source = fnReadCsv("validation/expected_results.csv"),
+				    #"Rename columns" = Table.RenameColumns(Source, {{"kpi_id", "KpiId"}, {"scope", "Scope"}, {"scope_value", "ScopeValue"}, {"expected_value", "ExpectedValue"}, {"unit", "Unit"}}),
+				    #"Set types" = Table.TransformColumnTypes(#"Rename columns", {{"KpiId", type text}, {"Scope", type text}, {"ScopeValue", type text}, {"ExpectedValue", type number}, {"Unit", type text}}, "en-US"),
+				    #"Add row order" = Table.AddIndexColumn(#"Set types", "RowOrder", 1, 1, Int64.Type)
+				in
+				    #"Add row order"
+
+	annotation PBI_ResultType = Table
