@@ -1,0 +1,21 @@
+# Power BI Desktop local state (user-specific, never shared)
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+**/.pbi/unappliedChanges.json
+*.pbix
+*.pbit
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Schema cache for validation/validate_project.py
+validation/.schema_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
