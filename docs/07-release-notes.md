@@ -1,5 +1,9 @@
 # 07 Release notes
 
+## v1.0.1 (17 November 2026)
+
+Fixes two problems found after v1.0.0: the project did not load in Power BI Desktop because of a misplaced description in the row-level security role (the TMDL folder now loads with Desktop's own serializer), and the keyboard tab order ran from the last visual to the first. Details: doc 06, defects D7 and D8. Power Query, DAX and the report pages (PBIR) still need their first full check in Desktop.
+
 ## v1.0.0 (17 November 2026)
 
 First release of the pickup network report for Norvane Parcel (a fictional carrier; all data is synthetic).
@@ -29,7 +33,7 @@ First release of the pickup network report for Norvane Parcel (a fictional carri
 
 - `validation/reconcile.py` recomputes every KPI from the raw files and writes `expected_results.csv` (149 values).
 - `validation/sql_crosscheck.py` repeats the base KPIs in SQL: 86 values, no differences.
-- `validation/validate_project.py` validates files against Microsoft's JSON schemas and checks the model and report structure: 577 checks, none failed.
+- `validation/validate_project.py` validates files against Microsoft's JSON schemas and checks the model and report structure: 582 checks, none failed.
 
 **Documentation**: README, documents 01 to 07 and this changelog.
 

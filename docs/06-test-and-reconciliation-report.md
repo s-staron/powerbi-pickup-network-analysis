@@ -10,7 +10,9 @@ Version 1.0. Every row says how the check was run. A check that was not run is m
 | Planted data quality issues are found by the cleaning rules | Passed (run) |
 | Expected KPI values recomputed a second time in SQL | Passed: 86 values compared, 0 differences (run) |
 | Project files valid against Microsoft's JSON schemas | Passed: 50 JSON files (run) |
-| TMDL and PBIR structure and references | Passed: 577 static checks, 0 failed (run) |
+| TMDL and PBIR structure and references | Passed: 582 static checks, 0 failed (run) |
+| TMDL parsed by the serializer that ships with Power BI Desktop | Passed: 12 tables, 5 relationships, 1 role, 9 expressions, 30 measures (run) |
+| Accessibility audit of the report (alt text, tab order) | Passed after fixing the tab order (run) |
 | Power Query refresh in Power BI Desktop | **Not run** |
 | DAX measures evaluated and compared with `expected_results.csv` | **Not run** |
 | Row-level security tested in Desktop | **Not run** |
@@ -26,7 +28,9 @@ Why the last five rows were not run: the Power BI Modeling MCP was not available
 | Generator | `python scripts/generate_data.py` | Writes the raw CSV files; prints the planted issue counts |
 | Reconcile | `python validation/reconcile.py` | Applies rules R1 to R6 in Python and writes `validation/expected_results.csv` |
 | SQL cross-check | `python validation/sql_crosscheck.py` | Loads the CSV files into SQLite, applies the rules in SQL, recomputes base KPIs and compares them with the expected file |
-| Static validation | `python validation/validate_project.py` | JSON schema validation, TMDL lint, PBIR field references |
+| Static validation | `python validation/validate_project.py` | JSON schema validation, TMDL lint, PBIR field references, tab-order direction |
+| TMDL parse check | `powershell -File validation	mdl_parse_check.ps1` | Loads the TMDL folder with the TMDL serializer from the installed Power BI Desktop; checks syntax and object structure, not DAX or Power Query |
+| Accessibility audit | `pbip-accessibility` skill, `scan` then `apply` | Checks alt text, button tooltips and tab order of every visual against the PBIR rules |
 
 ## 3. Test cases
 
@@ -48,6 +52,8 @@ Why the last five rows were not run: the Power BI Modeling MCP was not available
 | T14 | RLS role `Regional Manager` exists and filters `DimRegion` by `USERPRINCIPALNAME()` | True | True (text check only) | `validate_project.py` | Passed (static) |
 | T15 | Every KPI in `expected_results.csv` is covered by the `Check Actual` measure | All 20 | All 20 | `validate_project.py` | Passed |
 | T16 | Every visual field exists in the model; 37 visuals have alt text and tab order; 4 visible pages; tooltip and drill-through bindings consistent | True | True | `validate_project.py` | Passed |
+| T28 | The TMDL folder loads with the TMDL serializer of Power BI Desktop 2.159 | Loads | After defect D7 was fixed: 12 tables, 5 relationships, 1 role, 9 expressions, 30 measures | `tmdl_parse_check.ps1` | Passed |
+| T29 | Accessibility audit: alt text on every visual, no buttons, tab order follows reading order (title first) | No issues | Alt text complete; tab order was reversed (defect D8), fixed in 34 files | `pbip-accessibility` skill, `validate_project.py` | Passed after fix |
 | T17 | Power Query: refresh without errors; fact table 133,601 rows | No errors | | Power BI Desktop | **Not run** |
 | T18 | DAX: all 149 reconciliation rows show OK | 149 of 149 | | Power BI Desktop, page 4 | **Not run** |
 | T19 | RLS: `north.manager@example.com` sees only North (19,976 parcels) | North only | | Desktop, View as | **Not run** |
@@ -93,10 +99,12 @@ Cross-checks inside the expected file: the five regions plus Unassigned add up t
 | D4 | `DimRegion[Region]` was both the name shown to users and the relationship key (a visible key) | Static check "key columns are hidden" | Added a hidden surrogate key `RegionKey`; relationships use it |
 | D5 | Target measures would have shown a region's target next to a single point | Design review of the matrix | Target measures return blank when `DimPickupPoint` is filtered |
 | D6 | Utilisation would have counted parcels at the unknown point in the numerator but not the denominator | Design review while writing `reconcile.py` | Unknown point is excluded from occupied slot-days |
+| D7 | Power BI Desktop refused to open the project: "Property 'description' is unknown". The description comment sat above the first `tablePermission` in the role file, and a table permission cannot have a description | Opening the project in Desktop (error report from the user) | Description moved above `role`; `tmdl_parse_check.ps1` and a validator rule now catch it |
+| D8 | Tab order was reversed: PBIR focuses the highest `tabOrder` first, and the generated values rose from the title downwards, so the keyboard started at the last visual | Accessibility audit (`pbip-accessibility` skill) | Values reassigned so the page title has the highest value (34 files, nothing else changed); validator checks the direction |
 
 ## 6. Known risks and what to check first in Power BI Desktop
 
-The TMDL and PBIR files were written outside Power BI Desktop. They match the published schemas, but a schema cannot catch everything Desktop checks at load time.
+The TMDL and PBIR files were written outside Power BI Desktop. They match the published schemas and the TMDL folder now loads with Desktop's own serializer, but the first real opening in Desktop already found one error (D7), so more load-time problems in the report files (PBIR) cannot be ruled out.
 
 1. Open `PickupNetwork.pbip`. If Desktop reports an error in a file, read the message and the file path; the files are text and easy to fix.
 2. Set `DataFolder` and refresh. If a Power Query step fails, the step name says which rule (R1 to R6) it belongs to.

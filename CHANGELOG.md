@@ -2,6 +2,18 @@
 
 All notable changes to this project are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-11-17
+
+### Fixed
+
+- Power BI Desktop could not open the project because a description comment stood above a table permission in the row-level security role. The description now describes the role.
+- Tab order was reversed (PBIR focuses the highest value first). The page title now has the highest value, so the keyboard follows the reading order.
+
+### Added
+
+- `validation/tmdl_parse_check.ps1`: loads the TMDL with the serializer of the installed Power BI Desktop.
+- Validator rules for description placement and tab-order direction (582 checks).
+
 ## [1.0.0] - 2026-11-17
 
 ### Added

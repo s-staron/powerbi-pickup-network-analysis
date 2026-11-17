@@ -10,7 +10,7 @@ The report is stored as PBIR in `PickupNetwork.Report/definition/`. Canvas size 
 | Palette | Colour-blind-safe (blue `#0072B2`, orange `#E69F00`, green `#009E73`, pink `#CC79A7`, sky `#56B4E9`, vermilion `#D55E00`, grey `#5F6B7A`, indigo `#332288`) on a white background; text `#1F2933` |
 | Colour as a signal | Never the only signal: the number is always shown; the legend names the colours |
 | Alt text | Every visual has alt text that says what it shows |
-| Reading order | `tabOrder` follows the visual order on the page: title, slicers, KPIs, charts |
+| Reading order | `tabOrder` follows the reading order (left to right, top to bottom): title, slicers, KPIs, charts. PBIR focuses the highest value first, so the title has the highest value |
 | Titles | Every visual has a title; page and drill-through titles are dynamic |
 | Pages | 4 visible pages and 1 hidden tooltip page |
 

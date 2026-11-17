@@ -75,11 +75,12 @@ python validation/reconcile.py           # recompute expected_results.csv
 python validation/sql_crosscheck.py      # the same KPIs again, in SQL (SQLite)
 pip install jsonschema referencing
 python validation/validate_project.py    # schemas, TMDL, PBIR, references
+powershell -File validation/tmdl_parse_check.ps1   # TMDL parsed by Power BI Desktop's serializer
 ```
 
 ## Status of verification
 
-The project was built without the Power BI Modeling MCP, and Power BI Desktop could not be driven from a script. The files are checked statically (50 JSON files against Microsoft's schemas, 577 checks of the TMDL and PBIR structure, 0 failed) and the expected numbers were computed twice (Python and SQL, 86 values, 0 differences). **Power Query and DAX have not been executed yet**: the reconciliation page does that the first time the file is refreshed in Desktop. Details and a UAT checklist: [`docs/06-test-and-reconciliation-report.md`](docs/06-test-and-reconciliation-report.md).
+The project was built without the Power BI Modeling MCP, and Power BI Desktop could not be driven from a script. The first opening in Desktop found a TMDL error (fixed in v1.0.1), and the TMDL now loads with Desktop's own serializer. The files are checked statically (50 JSON files against Microsoft's schemas, 582 checks of the TMDL and PBIR structure, 0 failed) and the expected numbers were computed twice (Python and SQL, 86 values, 0 differences). **Power Query and DAX have not been executed yet**: the reconciliation page does that the first time the file is refreshed in Desktop. Details and a UAT checklist: [`docs/06-test-and-reconciliation-report.md`](docs/06-test-and-reconciliation-report.md).
 
 ## File formats: GA or preview?
 

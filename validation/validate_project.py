@@ -106,6 +106,10 @@ def parse_tmdl():
         lines = f.read_text(encoding="utf-8").split("\n")
         rel = f.relative_to(ROOT)
         for i, line in enumerate(lines, 1):
+            if line.strip().startswith("///"):
+                nxt = next((l.strip() for l in lines[i:] if not l.strip().startswith("///")), "")
+                if not re.match(r"(table|column|measure|role|expression|hierarchy|relationship) ", nxt):
+                    problems.append(f"{rel}:{i}: description (///) above '{nxt[:40]}', which cannot have one")
             if line.startswith(" "):
                 problems.append(f"{rel}:{i}: line starts with a space, TMDL uses tabs")
             m = re.match(r"\s*lineageTag: (\S+)", line)
@@ -305,6 +309,7 @@ def validate_report(tables, all_measures):
             bound = {f["name"] for f in page.get("filterConfig", {}).get("filters", [])}
             for prm in page["pageBinding"]["parameters"]:
                 check(prm["boundFilter"] in bound, f"{pd}: binding parameter {prm['name']} has its filter")
+        order = []
         for vf in sorted((defn / "pages" / pd / "visuals").glob("*/visual.json")):
             v = json.loads(vf.read_text(encoding="utf-8"))
             n_visuals += 1
@@ -312,6 +317,7 @@ def validate_report(tables, all_measures):
             alt = v["visual"].get("visualContainerObjects", {}).get("general", [{}])[0].get("properties", {}).get("altText")
             check(bool(alt), f"{pd}/{v['name']} has alt text", "missing altText")
             check("tabOrder" in v["position"], f"{pd}/{v['name']} has a tab order")
+            order.append((v["position"]["y"], v["position"]["x"], v["position"].get("tabOrder")))
             for node in walk(v):
                 for kind in ("Column", "Measure"):
                     if kind in node and isinstance(node[kind], dict) and "Property" in node[kind]:
@@ -324,6 +330,11 @@ def validate_report(tables, all_measures):
             if tip:
                 sec = tip[0]["properties"]["section"]["expr"]["Literal"]["Value"].strip("'")
                 check(sec in page_dirs, f"{pd}/{v['name']}: tooltip page {sec} exists")
+        # tabOrder is descending: the highest value gets focus first, so the visual at the top left
+        # (the page title) must have the highest value, and values must be unique
+        tabs = [t for _, _, t in sorted(order)]
+        check(tabs[0] == max(tabs) and len(set(tabs)) == len(tabs),
+              f"{pd}: tab order is unique and the top-left visual is focused first", str(tabs))
     check(visible == 4, f"report has 4 visible pages (found {visible})", str(visible))
     theme = REPORT / "StaticResources" / "RegisteredResources" / "PickupNetworkTheme.json"
     check(theme.exists(), "single theme file present")
