@@ -1,0 +1,91 @@
+point_id,point_name,point_type,region,city,partner_category,capacity_slots,opening_date
+PP-001,Lublin Pharmacy 001,Parcel shop,East,Lublin,Pharmacy,15,2022-07-22
+PP-002,Opole Convenience store 002,Parcel shop,West,Opole,Convenience store,12,2024-03-21
+PP-003,Szczecin Residential estate 003,Parcel locker,North,szczecin ,Residential estate,20,2020-12-28
+PP-004,Gdańsk Residential estate 004,Parcel locker,North,Gdańsk,Residential estate,12,13.02.2024
+PP-005,Białystok Pharmacy 005,Parcel shop,East,Bialystok,Pharmacy,12,26.05.2019
+PP-006,Warszawa Supermarket car park 006,Parcel locker,Central,Warsaw,Supermarket car park,40,2019-12-02
+PP-007,Radom Supermarket car park 007,Parcel locker,Central,radom,Supermarket car park,30,2024-01-09
+PP-008,Opole Pharmacy 008,Parcel shop,West,opole,Pharmacy,15,2022-09-29
+PP-009,Płock Convenience store 009,Parcel shop,Central,Płock,Convenience store,12,2021-04-17
+PP-010,Łódź Petrol station 010,Parcel shop,Central,Łódź,Petrol station,15,2019-08-09
+PP-011,Łódź Convenience store 011,Parcel shop,Central,Łódź,Convenience store,20,25.09.2022
+PP-012,Płock Petrol station 012,Parcel locker,Central,PŁOCK,Petrol station,16,08.01.2019
+PP-013,Łódź Residential estate 013,Parcel locker,Central,Łódź,Residential estate,16,2023-03-09
+PP-014,Gdańsk Petrol station 014,Parcel shop,North,gdańsk,Petrol station,15,2021-12-03
+PP-015,Warszawa Residential estate 015,Parcel locker,Central,WARSZAWA,Residential estate,20,2022-09-28
+PP-016,Łódź Petrol station 016,Parcel locker,Central,Łódź,Petrol station,30,08.12.2023
+PP-017,Gdynia Petrol station 017,Parcel shop,North,Gdynia,Petrol station,10,12.04.2018
+PP-018,Radom Supermarket car park 018,Parcel locker,Central,radom,Supermarket car park,12,2024-04-17
+PP-019,Szczecin Pharmacy 019,Parcel shop,North,Szczecin,Pharmacy,8,2019-10-24
+PP-020,Kraków Supermarket car park 020,Parcel locker,South,krakow ,Supermarket car park,24,2019-02-08
+PP-021,Rzeszów Pharmacy 021,Parcel shop,South,Rzeszów,Pharmacy,15,2018-03-28
+PP-022,Olsztyn Pharmacy 022,Parcel shop,North,Olsztyn,Pharmacy,15,2018-04-24
+PP-023,Wrocław Petrol station 023,Parcel locker,West,WROCŁAW,Petrol station,24,2020-05-25
+PP-024,Warszawa Transport hub 024,Parcel locker,Central,Warsaw,Transport hub,16,2020-05-20
+PP-025,Gdańsk Transport hub 025,Parcel locker,North,gdańsk,Transport hub,16,2023-09-02
+PP-026,Katowice Transport hub 026,Parcel locker,South,Katowice,Transport hub,16,2023-06-12
+PP-027,Rzeszów Newsagent 027,Parcel shop,South,Rzeszów,Newsagent,20,2024-01-19
+PP-028,Zielona Góra Residential estate 028,Parcel locker,West,Zielona Góra,Residential estate,30,2018-08-21
+PP-029,Szczecin Supermarket car park 029,Parcel locker,North,Szczecin,Supermarket car park,20,2022-01-05
+PP-030,Lublin Newsagent 030,Parcel shop,East,lublin,Newsagent,20,2022-01-31
+PP-031,Poznań Newsagent 031,Parcel shop,West,Poznań,Newsagent,10,2024-06-29
+PP-032,Kielce Newsagent 032,Parcel shop,East,kielce,Newsagent,20,2024-09-15
+PP-033,Kielce Petrol station 033,Parcel locker,East,Kielce,Petrol station,30,2022-12-17
+PP-034,Białystok Pharmacy 034,Parcel shop,East,Bialystok,Pharmacy,8,2021-03-21
+PP-035,Olsztyn Supermarket car park 035,Parcel locker,North,olsztyn,Supermarket car park,16,2021-12-19
+PP-036,Kraków Newsagent 036,Parcel shop,South,Kraków,Newsagent,20,2021-06-30
+PP-037,Lublin Transport hub 037,Parcel locker,East,lublin,Transport hub,20,06.06.2018
+PP-038,Warszawa Petrol station 038,Parcel shop,Central,WARSZAWA,Petrol station,10,2018-09-18
+PP-039,Rzeszów Petrol station 039,Parcel locker,South,Rzeszów,Petrol station,16,2020-09-22
+PP-040,Zielona Góra Petrol station 040,Parcel shop,West,Zielona Gora,Petrol station,8,2020-12-22
+PP-041,Zielona Góra Newsagent 041,Parcel shop,West,Zielona Góra,Newsagent,20,2021-07-10
+PP-042,Bielsko-Biała Petrol station 042,Parcel shop,South,Bielsko-Biala,Petrol station,8,2024-03-04
+PP-043,Warszawa Transport hub 043,Parcel locker,Central,Warsaw,Transport hub,20,2024-06-22
+PP-044,Gdańsk Newsagent 044,Parcel shop,North,Gdańsk,Newsagent,15,2025-05-08
+PP-045,Płock Convenience store 045,Parcel shop,Central,PŁOCK,Convenience store,20,2022-03-31
+PP-046,Płock Transport hub 046,Parcel locker,Central,Plock,Transport hub,12,2022-07-02
+PP-047,Bielsko-Biała Newsagent 047,Parcel shop,South,Bielsko-Biała,Newsagent,10,2018-01-30
+PP-048,Gdynia Residential estate 048,Parcel locker,North,Gdynia,Residential estate,16,07.04.2018
+PP-049,Katowice Supermarket car park 049,Parcel locker,South,Katowice,Supermarket car park,30,2018-12-17
+PP-050,Katowice Transport hub 050,Parcel locker,South,Katowice,Transport hub,40,2022-11-30
+PP-051,Wrocław Newsagent 051,Parcel shop,West,wrocław,Newsagent,20,2021-01-20
+PP-052,Zamość Newsagent 052,Parcel shop,East,Zamosc,Newsagent,20,2020-02-25
+PP-053,Radom Transport hub 053,Parcel locker,Central,radom,Transport hub,40,2018-08-18
+PP-054,Bielsko-Biała Convenience store 054,Parcel shop,South,Bielsko-Biała,Convenience store,20,2021-08-20
+PP-055,Poznań Convenience store 055,Parcel shop,West,Poznan,Convenience store,8,28.10.2018
+PP-056,Radom Transport hub 056,Parcel locker,Central,Radom,Transport hub,24,2018-06-27
+PP-057,Gdynia Residential estate 057,Parcel locker,North,gdynia,Residential estate,20,2024-12-22
+PP-058,Opole Residential estate 058,Parcel locker,West,opole,Residential estate,24,2021-05-13
+PP-059,Poznań Newsagent 059,Parcel shop,West,Poznań,Newsagent,20,2021-04-30
+PP-060,Wrocław Pharmacy 060,Parcel shop,West,Wroclaw,Pharmacy,12,2019-06-27
+PP-061,Warszawa Newsagent 061,Parcel shop,Central,WARSZAWA,Newsagent,8,2019-02-24
+PP-062,Poznań Supermarket car park 062,Parcel locker,West,POZNAŃ,Supermarket car park,40,26.08.2020
+PP-063,Katowice Transport hub 063,Parcel locker,South,katowice,Transport hub,40,2025-01-18
+PP-064,Szczecin Pharmacy 064,Parcel shop,North,Szczecin,Pharmacy,15,2021-12-09
+PP-065,Olsztyn Supermarket car park 065,Parcel locker,North,olsztyn,Supermarket car park,40,16.04.2022
+PP-066,Opole Newsagent 066,Parcel shop,West,Opole,Newsagent,8,08.10.2018
+PP-067,Gdynia Convenience store 067,Parcel shop,North,gdynia,Convenience store,8,01.10.2022
+PP-068,Wrocław Supermarket car park 068,Parcel locker,West,Wrocław,Supermarket car park,12,08.07.2021
+PP-069,Kraków Transport hub 069,Parcel locker,South,Cracow,Transport hub,24,13.08.2023
+PP-070,Wrocław Convenience store 070,Parcel shop,West,Wrocław,Convenience store,20,2022-09-14
+PP-071,Zielona Góra Newsagent 071,Parcel shop,West,Zielona Góra,Newsagent,8,2022-11-30
+PP-072,Łódź Supermarket car park 072,Parcel locker,Central,Łódź,Supermarket car park,12,22.07.2020
+PP-073,Poznań Transport hub 073,Parcel locker,West,Poznań,Transport hub,40,2019-04-18
+PP-074,Bielsko-Biała Newsagent 074,Parcel shop,South,Bielsko-Biała,Newsagent,20,2020-12-21
+PP-075,Łódź Residential estate 075,Parcel locker,Central,LODZ,Residential estate,16,2021-10-10
+PP-076,Płock Petrol station 076,Parcel locker,Central,PŁOCK,Petrol station,40,2020-06-21
+PP-077,Radom Petrol station 077,Parcel locker,Central,Radom,Petrol station,16,2022-06-24
+PP-078,Katowice Convenience store 078,Parcel shop,South,Katowice,Convenience store,20,2021-05-07
+PP-079,Kraków Pharmacy 079,Parcel shop,South,krakow ,Pharmacy,8,2020-09-07
+PP-080,Bielsko-Biała Newsagent 080,Parcel shop,South,Bielsko-Biala,Newsagent,15,2019-01-22
+PP-081,Rzeszów Newsagent 081,Parcel shop,South,RZESZÓW,Newsagent,8,10.06.2019
+PP-082,Płock Residential estate 082,Parcel locker,Central,Płock,Residential estate,20,2025-04-12
+PP-083,Rzeszów Residential estate 083,Parcel locker,South,Rzeszow,Residential estate,16,2025-05-07
+PP-084,Białystok Transport hub 084,Parcel locker,East,BIAŁYSTOK,Transport hub,24,2021-07-08
+PP-085,Zamość Supermarket car park 085,Parcel locker,East,Zamość,Supermarket car park,24,31.10.2023
+PP-086,Zamość Petrol station 086,Parcel shop,East,Zamosc,Petrol station,20,2019-11-27
+PP-087,Olsztyn Petrol station 087,Parcel shop,North,Olsztyn,Petrol station,20,2024-04-16
+PP-088,Kraków Supermarket car park 088,Parcel locker,South,KRAKÓW,Supermarket car park,40,2021-09-15
+PP-089,Radom Petrol station 089,Parcel shop,Central,Radom,Petrol station,8,2021-02-12
+PP-090,Kielce Pharmacy 090,Parcel shop,East,kielce,Pharmacy,12,2022-07-07

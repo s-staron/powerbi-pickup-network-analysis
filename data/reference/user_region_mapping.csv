@@ -1,0 +1,8 @@
+user_email,region
+central.manager@example.com,Central
+south.manager@example.com,South
+west.manager@example.com,West
+north.manager@example.com,North
+east.manager@example.com,East
+north.east.manager@example.com,North
+north.east.manager@example.com,East
