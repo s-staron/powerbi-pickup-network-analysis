@@ -1,0 +1,90 @@
+/// Absolute path of the repository root (the folder that contains data\ and validation\). Change it once per machine, then refresh.
+expression DataFolder = "C:\path\to\powerbi-pickup-network-analysis" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 5f2b4297-9eca-54fa-b172-3eca9e07a93a
+	queryGroup: Parameters
+	annotation PBI_ResultType = Text
+
+/// Reads a CSV file below DataFolder as text columns with promoted headers.
+expression fnReadCsv =
+		(RelativePath as text) as table =>
+		let
+		    Root = Text.TrimEnd(DataFolder, "\"),
+		    FilePath = Root & "\" & Text.Replace(RelativePath, "/", "\"),
+		    Source = Csv.Document(File.Contents(FilePath), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+		    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true])
+		in
+		    Promoted
+	lineageTag: 03e4d6de-7c03-5ce4-bc20-67a9d1bcc89d
+	queryGroup: Functions
+	annotation PBI_ResultType = Function
+
+/// Turns empty text and the text NULL into a real null (rule R3).
+expression fnNullIfEmpty =
+		(Value as nullable text) as nullable text =>
+		    if Value = null or Text.Trim(Value) = "" or Text.Upper(Text.Trim(Value)) = "NULL" then null else Value
+	lineageTag: 953f6cda-4659-5296-96ab-c72ce5d45030
+	queryGroup: Functions
+	annotation PBI_ResultType = Function
+
+/// Parses the two timestamp formats found in the parcel export (rule R2).
+expression fnParseTimestamp =
+		(Value as nullable text) as nullable datetime =>
+		    if Value = null then null
+		    else if Text.Contains(Value, ".")
+		        then DateTime.FromText(Value, [Format = "dd.MM.yyyy HH:mm:ss", Culture = "en-US"])
+		        else DateTime.FromText(Value, [Format = "yyyy-MM-dd HH:mm:ss", Culture = "en-US"])
+	lineageTag: df9ef8b5-5135-58b4-b01d-053186b8bcdf
+	queryGroup: Functions
+	annotation PBI_ResultType = Function
+
+/// Parses the two date formats found in the points export (rule R6).
+expression fnParseDate =
+		(Value as nullable text) as nullable date =>
+		    if Value = null then null
+		    else if Text.Contains(Value, ".")
+		        then Date.FromText(Value, [Format = "dd.MM.yyyy", Culture = "en-US"])
+		        else Date.FromText(Value, [Format = "yyyy-MM-dd", Culture = "en-US"])
+	lineageTag: 922dbb8f-5c70-528d-a972-23a400e0eb60
+	queryGroup: Functions
+	annotation PBI_ResultType = Function
+
+/// Parcel export exactly as delivered: every column is text, no rows removed.
+expression stg_Parcels_Raw =
+		let
+		    Source = fnReadCsv("data/raw/parcels_export.csv")
+		in
+		    Source
+	lineageTag: ce195722-0baa-5a35-b7d6-7fcdee29dc58
+	queryGroup: Staging
+	annotation PBI_ResultType = Table
+
+/// Parcel export after removing rows that are identical in all columns (rule R1).
+expression stg_Parcels_Deduped =
+		let
+		    Source = stg_Parcels_Raw,
+		    #"R1 Remove exact duplicate rows" = Table.Distinct(Source)
+		in
+		    #"R1 Remove exact duplicate rows"
+	lineageTag: 383d6c03-2707-57a5-89ea-8afe760e94d7
+	queryGroup: Staging
+	annotation PBI_ResultType = Table
+
+/// Points export exactly as delivered (text columns).
+expression stg_PickupPoints_Raw =
+		let
+		    Source = fnReadCsv("data/raw/pickup_points_export.csv")
+		in
+		    Source
+	lineageTag: 5c97db42-0d9d-5d02-97ec-3da0f6ec3678
+	queryGroup: Staging
+	annotation PBI_ResultType = Table
+
+/// Hand-maintained list: spelling variant (trimmed, lower case) to standard city name.
+expression stg_CityMapping =
+		let
+		    Source = fnReadCsv("data/reference/city_mapping.csv")
+		in
+		    Source
+	lineageTag: 8386152b-96f2-5c04-ac65-dabc587b13bc
+	queryGroup: Staging
+	annotation PBI_ResultType = Table
