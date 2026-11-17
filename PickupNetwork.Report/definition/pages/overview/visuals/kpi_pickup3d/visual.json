@@ -1,0 +1,101 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "kpi_pickup3d",
+  "position": {
+    "x": 336,
+    "y": 114,
+    "z": 6000,
+    "height": 124,
+    "width": 288,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "multiRowCard",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Pickup Within 3 Days Rate"
+                }
+              },
+              "queryRef": "_Measures.Pickup Within 3 Days Rate",
+              "nativeQueryRef": "Pickup Within 3 Days Rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Target Pickup Within 3 Days Rate"
+                }
+              },
+              "queryRef": "_Measures.Target Pickup Within 3 Days Rate",
+              "nativeQueryRef": "Target Pickup Within 3 Days Rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Pickup 3D vs Target pp"
+                }
+              },
+              "queryRef": "_Measures.Pickup 3D vs Target pp",
+              "nativeQueryRef": "Pickup 3D vs Target pp"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Share of parcels collected within 3 days, its target and the difference in percentage points'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Pickup within 3 days'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
