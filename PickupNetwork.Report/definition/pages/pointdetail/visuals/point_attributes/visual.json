@@ -1,0 +1,143 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "point_attributes",
+  "position": {
+    "x": 652,
+    "y": 444,
+    "z": 10000,
+    "height": 260,
+    "width": 612,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimPickupPoint"
+                    }
+                  },
+                  "Property": "PointName"
+                }
+              },
+              "queryRef": "DimPickupPoint.PointName",
+              "nativeQueryRef": "PointName"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimPickupPoint"
+                    }
+                  },
+                  "Property": "PointType"
+                }
+              },
+              "queryRef": "DimPickupPoint.PointType",
+              "nativeQueryRef": "PointType"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimPickupPoint"
+                    }
+                  },
+                  "Property": "City"
+                }
+              },
+              "queryRef": "DimPickupPoint.City",
+              "nativeQueryRef": "City"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimPickupPoint"
+                    }
+                  },
+                  "Property": "PartnerCategory"
+                }
+              },
+              "queryRef": "DimPickupPoint.PartnerCategory",
+              "nativeQueryRef": "PartnerCategory"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimPickupPoint"
+                    }
+                  },
+                  "Property": "Capacity"
+                }
+              },
+              "queryRef": "DimPickupPoint.Capacity",
+              "nativeQueryRef": "Capacity"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimPickupPoint"
+                    }
+                  },
+                  "Property": "OpeningDate"
+                }
+              },
+              "queryRef": "DimPickupPoint.OpeningDate",
+              "nativeQueryRef": "OpeningDate"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Table with the point''s type, city, partner category, capacity and opening date'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Point attributes'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
