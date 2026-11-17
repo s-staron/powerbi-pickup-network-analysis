@@ -1,0 +1,84 @@
+/// Measures table. Holds every DAX measure of the model; it has no data. Display folders group the measures by purpose.
+table _Measures
+	lineageTag: d599687f-5f6e-5865-8168-76cedf26edee
+
+	/// Number of parcels that arrived at a pickup point (duplicates already removed). Basis of every rate.
+	measure 'Parcels Arrived' = COUNTROWS(FactParcel)
+		formatString: #,##0
+		displayFolder: 1 Volumes
+		lineageTag: 40582bd4-79a8-591d-8891-84952afbdbee
+
+	/// Parcels that a customer collected.
+	measure 'Parcels Collected' = SUM(FactParcel[IsCollected])
+		formatString: #,##0
+		displayFolder: 1 Volumes
+		lineageTag: 9e252ff6-024b-5ef1-aa67-bdf274d8fb96
+
+	/// Parcels that went back to the sender.
+	measure 'Parcels Returned' = SUM(FactParcel[IsReturned])
+		formatString: #,##0
+		displayFolder: 1 Volumes
+		lineageTag: 7ca40243-5331-5ecd-87c8-e1e0040d9415
+
+	/// Parcels collected 72 hours or less after arrival.
+	measure 'Collected Within 3 Days' = SUM(FactParcel[IsCollectedWithin3Days])
+		formatString: #,##0
+		displayFolder: 1 Volumes
+		lineageTag: 854c120e-b511-5878-a919-e3b9335469c1
+
+	/// Share of arrived parcels that were collected. Every parcel in the export is resolved, so this equals 1 minus the return rate.
+	measure 'Pickup Rate' = DIVIDE([Parcels Collected], [Parcels Arrived])
+		formatString: 0.0%
+		displayFolder: 2 Rates and times
+		lineageTag: a79b2dae-3b34-5a44-bb61-f472e7c36f4a
+
+	/// Share of arrived parcels collected within 3 days. Denominator is all arrived parcels, so returns count as misses.
+	measure 'Pickup Within 3 Days Rate' = DIVIDE([Collected Within 3 Days], [Parcels Arrived])
+		formatString: 0.0%
+		displayFolder: 2 Rates and times
+		lineageTag: 403cfa84-3867-5b30-bb95-470e185704db
+
+	/// Share of arrived parcels that went back to the sender.
+	measure 'Return To Sender Rate' = DIVIDE([Parcels Returned], [Parcels Arrived])
+		formatString: 0.0%
+		displayFolder: 2 Rates and times
+		lineageTag: 23603c30-55f1-5ebc-9a40-a83d6ba8b7b4
+
+	/// Average days from arrival to pickup, collected parcels only.
+	measure 'Avg Dwell Days' = CALCULATE(AVERAGE(FactParcel[DwellDays]), FactParcel[IsCollected] = 1)
+		formatString: 0.00
+		displayFolder: 2 Rates and times
+		lineageTag: 6ff67a66-c256-54f1-8247-f6e388cdfc33
+
+	/// Occupied slot-days divided by available slot-days. Occupied = days parcels stayed at known points, counted on the arrival date. Available = capacity times the days in the period since the point opened. Above 100% means demand beyond the nominal capacity.
+	measure Utilisation =
+			VAR _occupied =
+			    CALCULATE(SUM(FactParcel[DwellDays]), DimPickupPoint[IsKnownPoint] = TRUE()) + 0
+			VAR _available =
+			    SUMX(
+			        DimPickupPoint,
+			        DimPickupPoint[Capacity]
+			            * COUNTROWS(FILTER(VALUES(DimDate[Date]), DimDate[Date] >= DimPickupPoint[OpeningDate]))
+			    )
+			RETURN
+			    DIVIDE(_occupied, _available)
+		formatString: 0%
+		displayFolder: 3 Capacity
+		lineageTag: 71348e2e-307c-5119-80e4-2e681114a28a
+
+	column Placeholder
+		dataType: string
+		isHidden
+		lineageTag: d81eb490-c122-5f34-9772-50dee225e9eb
+		summarizeBy: none
+		sourceColumn: Placeholder
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				    Source = #table(type table [Placeholder = text], {})
+				in
+				    Source
+
+	annotation PBI_ResultType = Table
