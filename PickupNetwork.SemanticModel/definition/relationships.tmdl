@@ -1,0 +1,19 @@
+relationship 853bb47b-29a0-56a4-a7af-e091d021695e
+	fromColumn: FactParcel.PointKey
+	toColumn: DimPickupPoint.PointKey
+
+relationship 5c4ed95c-0c6d-53cf-a573-25a48bceb2b6
+	fromColumn: FactParcel.ArrivalDate
+	toColumn: DimDate.Date
+
+relationship 7242739a-3848-5327-baf1-fb12cf815725
+	fromColumn: DimPickupPoint.RegionKey
+	toColumn: DimRegion.RegionKey
+
+relationship 1b4f5813-8787-5a87-b7e3-0bfaf4dd13ea
+	fromColumn: Target.RegionKey
+	toColumn: DimRegion.RegionKey
+
+relationship 2c9efddf-dbcd-543c-88d5-fd4406b70213
+	fromColumn: Target.MonthStart
+	toColumn: DimDate.Date
