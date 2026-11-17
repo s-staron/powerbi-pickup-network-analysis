@@ -1,0 +1,11 @@
+role 'Regional Manager'
+	modelPermission: read
+
+	/// A regional manager sees only the regions listed for their e-mail address in UserRegion.
+	tablePermission DimRegion = DimRegion[Region] IN SELECTCOLUMNS(FILTER(UserRegion, UserRegion[Email] = USERPRINCIPALNAME()), "Region", UserRegion[Region])
+	tablePermission UserRegion = UserRegion[Email] = USERPRINCIPALNAME()
+	tablePermission ExpectedResults = FALSE()
+	tablePermission DQ_Cleaning = FALSE()
+	tablePermission DQ_UnmatchedPoints = FALSE()
+
+	annotation PBI_Id = 8aa3328c-9195-5c7f-9e43-4878fb9265c2

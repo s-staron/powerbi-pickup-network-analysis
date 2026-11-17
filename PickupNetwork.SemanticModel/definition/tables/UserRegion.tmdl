@@ -1,0 +1,30 @@
+/// Row-level security mapping: which user (e-mail) may see which region. One row per user and region. Source: user_region_mapping.csv (example addresses only).
+table UserRegion
+	isHidden
+	lineageTag: 6ca58448-3f00-5cc7-ab84-3e99797b0c32
+
+	/// User principal name of the report viewer.
+	column Email
+		dataType: string
+		lineageTag: 37745e86-24d7-5c41-944c-ec436d93d227
+		summarizeBy: none
+		sourceColumn: Email
+
+	/// Region the user may see.
+	column Region
+		dataType: string
+		lineageTag: 444f308b-0114-5c15-bf74-8508c821df54
+		summarizeBy: none
+		sourceColumn: Region
+
+	partition UserRegion = m
+		mode: import
+		source =
+				let
+				    Source = fnReadCsv("data/reference/user_region_mapping.csv"),
+				    #"Rename columns" = Table.RenameColumns(Source, {{"user_email", "Email"}, {"region", "Region"}}),
+				    #"Set types" = Table.TransformColumnTypes(#"Rename columns", {{"Email", type text}, {"Region", type text}})
+				in
+				    #"Set types"
+
+	annotation PBI_ResultType = Table
