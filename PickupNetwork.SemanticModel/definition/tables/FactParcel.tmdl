@@ -1,0 +1,144 @@
+/// One row per parcel that arrived at a pickup point (after removing exact duplicates). Grain: one parcel. Source: parcels_export.csv.
+table FactParcel
+	lineageTag: 2066af3c-85c5-5425-bbba-fbacdf9d0ad9
+
+	/// Parcel number from the source system.
+	column ParcelId
+		dataType: string
+		lineageTag: b12c4c32-f33f-58e3-9e43-fc81d2d24a7c
+		summarizeBy: none
+		sourceColumn: ParcelId
+
+	/// Point ID exactly as exported (may not exist in the points table).
+	column SourcePointId
+		dataType: string
+		isHidden
+		lineageTag: e909f82b-87fe-532d-a563-0dc85192b115
+		summarizeBy: none
+		sourceColumn: SourcePointId
+
+	/// Foreign key to DimPickupPoint; unmatched IDs are mapped to PP-UNKNOWN.
+	column PointKey
+		dataType: string
+		isHidden
+		lineageTag: 646027ac-badf-52a0-b526-24921d690321
+		summarizeBy: none
+		sourceColumn: PointKey
+
+	/// When the parcel arrived at the point.
+	column ArrivalDateTime
+		dataType: dateTime
+		formatString: yyyy-MM-dd HH:mm
+		lineageTag: d06d8629-4ec8-5c89-94f5-19ef4f13485d
+		summarizeBy: none
+		sourceColumn: ArrivalDateTime
+
+	/// Date part of the arrival; foreign key to DimDate.
+	column ArrivalDate
+		dataType: dateTime
+		formatString: yyyy-MM-dd
+		isHidden
+		lineageTag: 9b00d0c7-e96f-5387-8aca-671aea2ae041
+		summarizeBy: none
+		sourceColumn: ArrivalDate
+
+	/// When the customer collected the parcel; empty for returned parcels.
+	column PickupDateTime
+		dataType: dateTime
+		formatString: yyyy-MM-dd HH:mm
+		lineageTag: f566c68c-1f64-5a8d-a876-c732f4390232
+		summarizeBy: none
+		sourceColumn: PickupDateTime
+
+	/// When the parcel was taken back for return to sender; empty for collected parcels.
+	column ReturnDateTime
+		dataType: dateTime
+		formatString: yyyy-MM-dd HH:mm
+		lineageTag: 4a8ef76f-d989-52da-8b30-ef95ee34a528
+		summarizeBy: none
+		sourceColumn: ReturnDateTime
+
+	/// Collected or Returned.
+	column Status
+		dataType: string
+		lineageTag: 93f3ab3f-268f-53fe-b5bf-c2c2b4f83dd5
+		summarizeBy: none
+		sourceColumn: Status
+
+	/// Why the parcel went back to the sender; empty for collected parcels.
+	column ReturnReason
+		dataType: string
+		lineageTag: 9f8d5811-0a43-5215-9ce3-1af73a4adbde
+		summarizeBy: none
+		sourceColumn: ReturnReason
+
+	/// Standard, Express or Cash on delivery.
+	column ServiceType
+		dataType: string
+		lineageTag: b252cbab-93d8-5965-8cec-25a48f92b144
+		summarizeBy: none
+		sourceColumn: ServiceType
+
+	/// Segment of the sending company or person.
+	column SenderSegment
+		dataType: string
+		lineageTag: 02077f85-5050-513d-9341-28bd15ab016a
+		summarizeBy: none
+		sourceColumn: SenderSegment
+
+	/// Days from arrival to pickup (collected) or to return (returned).
+	column DwellDays
+		dataType: double
+		formatString: 0.00
+		lineageTag: 7446d6a8-da57-5952-8fb1-b781371da637
+		summarizeBy: none
+		sourceColumn: DwellDays
+
+	/// 1 when Status is Collected.
+	column IsCollected
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: ea61423a-436b-56fd-ae90-469db6554ad0
+		summarizeBy: sum
+		sourceColumn: IsCollected
+
+	/// 1 when Status is Returned.
+	column IsReturned
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 2c36746d-5a05-59a9-91c2-f8d4fbce9bd5
+		summarizeBy: sum
+		sourceColumn: IsReturned
+
+	/// 1 when collected 72 hours or less after arrival.
+	column IsCollectedWithin3Days
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: fe9a4810-2e3d-5546-a93b-e8666d79c4ac
+		summarizeBy: sum
+		sourceColumn: IsCollectedWithin3Days
+
+	partition FactParcel = m
+		mode: import
+		source =
+				let
+				    Source = stg_Parcels_Deduped,
+				    KnownPointIds = List.Buffer(Table.Column(stg_PickupPoints_Raw, "point_id")),
+				    #"R3 Blank and NULL text to null" = Table.TransformColumns(Source, {{"pickup_ts", fnNullIfEmpty, type nullable text}, {"return_ts", fnNullIfEmpty, type nullable text}, {"return_reason", fnNullIfEmpty, type nullable text}}),
+				    #"R2 Parse mixed timestamp formats" = Table.TransformColumns(#"R3 Blank and NULL text to null", {{"arrival_ts", fnParseTimestamp, type nullable datetime}, {"pickup_ts", fnParseTimestamp, type nullable datetime}, {"return_ts", fnParseTimestamp, type nullable datetime}}),
+				    #"Rename columns" = Table.RenameColumns(#"R2 Parse mixed timestamp formats", {{"parcel_id", "ParcelId"}, {"point_id", "SourcePointId"}, {"arrival_ts", "ArrivalDateTime"}, {"pickup_ts", "PickupDateTime"}, {"return_ts", "ReturnDateTime"}, {"status", "Status"}, {"return_reason", "ReturnReason"}, {"service_type", "ServiceType"}, {"sender_segment", "SenderSegment"}}),
+				    #"R4 Map unmatched point IDs to PP-UNKNOWN" = Table.AddColumn(#"Rename columns", "PointKey", each if List.Contains(KnownPointIds, [SourcePointId]) then [SourcePointId] else "PP-UNKNOWN", type text),
+				    #"Add arrival date" = Table.AddColumn(#"R4 Map unmatched point IDs to PP-UNKNOWN", "ArrivalDate", each DateTime.Date([ArrivalDateTime]), type date),
+				    #"Add dwell days" = Table.AddColumn(#"Add arrival date", "DwellDays", each let EndTime = (if [Status] = "Collected" then [PickupDateTime] else [ReturnDateTime]) in if EndTime = null then null else Duration.TotalDays(EndTime - [ArrivalDateTime]), type nullable number),
+				    #"Add IsCollected" = Table.AddColumn(#"Add dwell days", "IsCollected", each if [Status] = "Collected" then 1 else 0, Int64.Type),
+				    #"Add IsReturned" = Table.AddColumn(#"Add IsCollected", "IsReturned", each if [Status] = "Returned" then 1 else 0, Int64.Type),
+				    #"Add IsCollectedWithin3Days" = Table.AddColumn(#"Add IsReturned", "IsCollectedWithin3Days", each if [Status] = "Collected" and [DwellDays] <> null and [DwellDays] <= 3 then 1 else 0, Int64.Type),
+				    #"Set text types" = Table.TransformColumnTypes(#"Add IsCollectedWithin3Days", {{"ParcelId", type text}, {"SourcePointId", type text}, {"Status", type text}, {"ReturnReason", type text}, {"ServiceType", type text}, {"SenderSegment", type text}}),
+				    #"Keep model columns" = Table.SelectColumns(#"Set text types", {"ParcelId", "SourcePointId", "PointKey", "ArrivalDateTime", "ArrivalDate", "PickupDateTime", "ReturnDateTime", "Status", "ReturnReason", "ServiceType", "SenderSegment", "DwellDays", "IsCollected", "IsReturned", "IsCollectedWithin3Days"})
+				in
+				    #"Keep model columns"
+
+	annotation PBI_ResultType = Table

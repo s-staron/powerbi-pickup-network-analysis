@@ -1,0 +1,35 @@
+/// One row per sales region plus 'Unassigned' for parcels at unknown points. Grain: one region. Shared dimension for points and targets; row-level security filters this table.
+table DimRegion
+	lineageTag: cec9967f-499b-5240-856c-2d109e58f407
+
+	/// Surrogate key; also the sort order of regions (Unassigned last).
+	column RegionKey
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: f4831f30-9e03-5005-9486-506cd29138ed
+		summarizeBy: none
+		sourceColumn: RegionKey
+
+	/// Region name.
+	column Region
+		dataType: string
+		lineageTag: 2ee058b3-7bca-54c3-b251-5ed6b69a6528
+		summarizeBy: none
+		sourceColumn: Region
+		sortByColumn: RegionKey
+
+	partition DimRegion = m
+		mode: import
+		source =
+				let
+				    Regions = List.Sort(List.Distinct(Table.Column(stg_PickupPoints_Raw, "region"))),
+				    #"Add Unassigned" = Regions & {"Unassigned"},
+				    AsTable = Table.FromList(#"Add Unassigned", Splitter.SplitByNothing(), {"Region"}, null, ExtraValues.Error),
+				    #"Add region key" = Table.AddIndexColumn(AsTable, "RegionKey", 1, 1, Int64.Type),
+				    #"Set types" = Table.TransformColumnTypes(#"Add region key", {{"Region", type text}}),
+				    #"Order columns" = Table.ReorderColumns(#"Set types", {"RegionKey", "Region"})
+				in
+				    #"Order columns"
+
+	annotation PBI_ResultType = Table

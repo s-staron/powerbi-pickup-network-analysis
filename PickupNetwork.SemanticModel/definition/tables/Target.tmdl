@@ -1,0 +1,63 @@
+/// Monthly targets per region: parcel volume, pickup-within-3-days rate and return-to-sender rate. Grain: one region and one month. Source: monthly_targets_export.csv.
+table Target
+	lineageTag: c621f35d-afc8-5306-b2e3-ac45b676a6d9
+
+	/// Foreign key to DimRegion.
+	column RegionKey
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 5e869e12-a06f-55fb-b8a5-03120b12d73c
+		summarizeBy: none
+		sourceColumn: RegionKey
+
+	/// First day of the target month; foreign key to DimDate.
+	column MonthStart
+		dataType: dateTime
+		formatString: yyyy-MM-dd
+		isHidden
+		lineageTag: 4772d1b3-146c-51d8-be76-0c19e0c6f018
+		summarizeBy: none
+		sourceColumn: MonthStart
+
+	/// Planned number of parcels arriving in the month.
+	column TargetParcels
+		dataType: int64
+		formatString: #,##0
+		isHidden
+		lineageTag: bca6456c-4e69-5a56-bac5-74235a51c981
+		summarizeBy: sum
+		sourceColumn: TargetParcels
+
+	/// Planned share of parcels collected within 3 days.
+	column TargetPickup3dRate
+		dataType: double
+		formatString: 0.0%
+		isHidden
+		lineageTag: 1a0275ae-9af4-5fee-a364-dbbb20ed11f1
+		summarizeBy: none
+		sourceColumn: TargetPickup3dRate
+
+	/// Planned share of parcels returned to sender.
+	column TargetReturnRate
+		dataType: double
+		formatString: 0.0%
+		isHidden
+		lineageTag: 9eb6f106-74d5-5ecb-8818-3b8bd7cb2eca
+		summarizeBy: none
+		sourceColumn: TargetReturnRate
+
+	partition Target = m
+		mode: import
+		source =
+				let
+				    Source = fnReadCsv("data/raw/monthly_targets_export.csv"),
+				    #"Rename columns" = Table.RenameColumns(Source, {{"region", "Region"}, {"month", "MonthStart"}, {"target_parcels", "TargetParcels"}, {"target_pickup_3d_rate", "TargetPickup3dRate"}, {"target_return_rate", "TargetReturnRate"}}),
+				    #"Set types" = Table.TransformColumnTypes(#"Rename columns", {{"Region", type text}, {"MonthStart", type date}, {"TargetParcels", Int64.Type}, {"TargetPickup3dRate", type number}, {"TargetReturnRate", type number}}, "en-US"),
+				    #"Join region key" = Table.NestedJoin(#"Set types", {"Region"}, DimRegion, {"Region"}, "RegionMap", JoinKind.LeftOuter),
+				    #"Expand region key" = Table.ExpandTableColumn(#"Join region key", "RegionMap", {"RegionKey"}, {"RegionKey"}),
+				    #"Keep model columns" = Table.SelectColumns(#"Expand region key", {"RegionKey", "MonthStart", "TargetParcels", "TargetPickup3dRate", "TargetReturnRate"})
+				in
+				    #"Keep model columns"
+
+	annotation PBI_ResultType = Table

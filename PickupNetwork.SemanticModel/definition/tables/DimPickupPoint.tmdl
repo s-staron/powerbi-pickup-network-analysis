@@ -1,0 +1,104 @@
+/// One row per pickup point (parcel shop or parcel locker) plus one PP-UNKNOWN row for parcels whose point ID is not in the points table. Grain: one point. Source: pickup_points_export.csv.
+table DimPickupPoint
+	lineageTag: 64481968-b7fd-5713-a117-a22afb722c37
+
+	/// Point ID; primary key.
+	column PointKey
+		dataType: string
+		isHidden
+		lineageTag: 55d8153e-b6f5-599b-afef-25dcff775565
+		summarizeBy: none
+		sourceColumn: PointKey
+
+	/// City, partner category and point number.
+	column PointName
+		dataType: string
+		lineageTag: 69e42713-c819-5497-a59e-f30e96bd8b49
+		summarizeBy: none
+		sourceColumn: PointName
+
+	/// Parcel locker or Parcel shop.
+	column PointType
+		dataType: string
+		lineageTag: c6467efb-e102-5eef-81e8-1c14511bc4b7
+		summarizeBy: none
+		sourceColumn: PointType
+
+	/// Foreign key to DimRegion.
+	column RegionKey
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: b800f0c1-0d6e-57f0-8594-8d328db6710f
+		summarizeBy: none
+		sourceColumn: RegionKey
+
+	/// Standardised city name (rule R5).
+	column City
+		dataType: string
+		lineageTag: a7dedd9f-fe40-574a-bfb6-457c602ad034
+		summarizeBy: none
+		sourceColumn: City
+
+	/// City spelling exactly as exported; kept to count standardised values.
+	column CityAsExported
+		dataType: string
+		isHidden
+		lineageTag: 3d110dbe-7410-5827-a691-cd1b300b9860
+		summarizeBy: none
+		sourceColumn: CityAsExported
+
+	/// Type of host business or site.
+	column PartnerCategory
+		dataType: string
+		lineageTag: 24f1be56-6057-5248-a673-3b6c56a057d0
+		summarizeBy: none
+		sourceColumn: PartnerCategory
+
+	/// Number of parcel slots at the point.
+	column Capacity
+		dataType: int64
+		formatString: 0
+		lineageTag: 54d714c6-ef55-53a7-8d59-08fa571de96d
+		summarizeBy: none
+		sourceColumn: Capacity
+
+	/// Date the point opened.
+	column OpeningDate
+		dataType: dateTime
+		formatString: yyyy-MM-dd
+		lineageTag: 8d01e692-4e81-532e-b275-df435eb1e28e
+		summarizeBy: none
+		sourceColumn: OpeningDate
+
+	/// False only for the PP-UNKNOWN row.
+	column IsKnownPoint
+		dataType: boolean
+		isHidden
+		lineageTag: 2f97b674-a1ea-5440-9b70-076bf2e3c4a2
+		summarizeBy: none
+		sourceColumn: IsKnownPoint
+
+	partition DimPickupPoint = m
+		mode: import
+		source =
+				let
+				    Source = stg_PickupPoints_Raw,
+				    #"Keep original city" = Table.RenameColumns(Source, {{"city", "CityAsExported"}}),
+				    #"Add city lookup key" = Table.AddColumn(#"Keep original city", "CityKey", each Text.Lower(Text.Trim([CityAsExported])), type text),
+				    #"Join city mapping" = Table.NestedJoin(#"Add city lookup key", {"CityKey"}, stg_CityMapping, {"city_key"}, "CityMap", JoinKind.LeftOuter),
+				    #"Expand standard city" = Table.ExpandTableColumn(#"Join city mapping", "CityMap", {"city"}, {"CityStandard"}),
+				    #"R5 Standardise city spelling" = Table.AddColumn(#"Expand standard city", "City", each if [CityStandard] = null then Text.Proper(Text.Trim([CityAsExported])) else [CityStandard], type text),
+				    #"R6 Parse mixed opening dates" = Table.TransformColumns(#"R5 Standardise city spelling", {{"opening_date", fnParseDate, type nullable date}}),
+				    #"Rename columns" = Table.RenameColumns(#"R6 Parse mixed opening dates", {{"point_id", "PointKey"}, {"point_name", "PointName"}, {"point_type", "PointType"}, {"region", "Region"}, {"partner_category", "PartnerCategory"}, {"capacity_slots", "Capacity"}, {"opening_date", "OpeningDate"}}),
+				    #"Keep model columns" = Table.SelectColumns(#"Rename columns", {"PointKey", "PointName", "PointType", "Region", "City", "CityAsExported", "PartnerCategory", "Capacity", "OpeningDate"}),
+				    #"Flag known points" = Table.AddColumn(#"Keep model columns", "IsKnownPoint", each true, type logical),
+				    #"R4 Add PP-UNKNOWN member" = Table.InsertRows(#"Flag known points", Table.RowCount(#"Flag known points"), {[PointKey = "PP-UNKNOWN", PointName = "Unknown point (not in points table)", PointType = "Unknown", Region = "Unassigned", City = "Unknown", CityAsExported = "Unknown", PartnerCategory = "Unknown", Capacity = "0", OpeningDate = null, IsKnownPoint = false]}),
+				    #"Set types" = Table.TransformColumnTypes(#"R4 Add PP-UNKNOWN member", {{"PointKey", type text}, {"PointName", type text}, {"PointType", type text}, {"Region", type text}, {"City", type text}, {"CityAsExported", type text}, {"PartnerCategory", type text}, {"Capacity", Int64.Type}, {"OpeningDate", type date}, {"IsKnownPoint", type logical}}, "en-US"),
+				    #"Join region key" = Table.NestedJoin(#"Set types", {"Region"}, DimRegion, {"Region"}, "RegionMap", JoinKind.LeftOuter),
+				    #"Expand region key" = Table.ExpandTableColumn(#"Join region key", "RegionMap", {"RegionKey"}, {"RegionKey"}),
+				    #"Drop region name" = Table.RemoveColumns(#"Expand region key", {"Region"})
+				in
+				    #"Drop region name"
+
+	annotation PBI_ResultType = Table
