@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "PickupNetwork"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "e717bb45-0111-5925-8c6e-da5028d42e86"
+  }
+}
