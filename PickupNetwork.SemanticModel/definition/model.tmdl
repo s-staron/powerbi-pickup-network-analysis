@@ -17,13 +17,14 @@ queryGroup Staging
 	annotation PBI_QueryGroupOrder = 2
 
 annotation __PBI_TimeIntelligenceEnabled = 0
-annotation PBI_QueryOrder = ["DataFolder", "fnReadCsv", "fnNullIfEmpty", "fnParseTimestamp", "fnParseDate", "stg_Parcels_Raw", "stg_Parcels_Deduped", "stg_PickupPoints_Raw", "stg_CityMapping", "FactParcel", "DimPickupPoint", "DimRegion", "Target"]
+annotation PBI_QueryOrder = ["DataFolder", "fnReadCsv", "fnNullIfEmpty", "fnParseTimestamp", "fnParseDate", "stg_Parcels_Raw", "stg_Parcels_Deduped", "stg_PickupPoints_Raw", "stg_CityMapping", "FactParcel", "DimPickupPoint", "DimRegion", "Target", "DimDate"]
 annotation PBI_ProTooling = ["DevMode"]
 
 ref table FactParcel
 ref table DimPickupPoint
 ref table DimRegion
 ref table Target
+ref table DimDate
 ref expression DataFolder
 ref expression fnReadCsv
 ref expression fnNullIfEmpty

@@ -1,0 +1,116 @@
+/// Calendar table built in Power Query from the first to the last month in the parcel data. Grain: one day. Marked as the date table of the model.
+table DimDate
+	dataCategory: Time
+	lineageTag: 7d8eaa4a-c623-55b3-a226-d31c0af19ac9
+
+	/// Calendar day; primary key.
+	column Date
+		dataType: dateTime
+		formatString: yyyy-MM-dd
+		isKey
+		lineageTag: a2798455-7371-5302-9e9b-dcd63ee16a1a
+		summarizeBy: none
+		sourceColumn: Date
+
+	/// Calendar year.
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: a03cc2f3-7332-5aec-bb65-6475c7ecaed5
+		summarizeBy: none
+		sourceColumn: Year
+
+	/// Quarter label, for example Q4.
+	column Quarter
+		dataType: string
+		lineageTag: 6b88bdb4-dec5-56dc-84b1-0e2b47f294f2
+		summarizeBy: none
+		sourceColumn: Quarter
+
+	/// Month number 1-12, used to sort MonthName.
+	column MonthNumber
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: c4fc264b-bb3a-5955-90ed-10504d647e36
+		summarizeBy: none
+		sourceColumn: MonthNumber
+
+	/// Short month name.
+	column MonthName
+		dataType: string
+		lineageTag: 1614194f-44ff-5dc9-8c5a-a5b2a447fc0d
+		summarizeBy: none
+		sourceColumn: MonthName
+		sortByColumn: MonthNumber
+
+	/// Year and month as yyyy-MM; sorts correctly as text.
+	column YearMonth
+		dataType: string
+		lineageTag: b2047605-65f2-580c-b587-a6924e805938
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+	/// First day of the month.
+	column MonthStart
+		dataType: dateTime
+		formatString: yyyy-MM-dd
+		isHidden
+		lineageTag: 822fdfeb-ec45-54fd-bee5-a17f779df402
+		summarizeBy: none
+		sourceColumn: MonthStart
+
+	/// Monday = 1 to Sunday = 7, used to sort WeekdayName.
+	column WeekdayNumber
+		dataType: int64
+		formatString: 0
+		isHidden
+		lineageTag: 2e381664-565c-506b-9fcf-d1a39aa4c1c7
+		summarizeBy: none
+		sourceColumn: WeekdayNumber
+
+	/// Short weekday name.
+	column WeekdayName
+		dataType: string
+		lineageTag: ac9a59dd-169f-51e8-9a3d-a14b890a7498
+		summarizeBy: none
+		sourceColumn: WeekdayName
+		sortByColumn: WeekdayNumber
+
+	/// True for Saturday and Sunday.
+	column IsWeekend
+		dataType: boolean
+		lineageTag: 6d889478-57fb-53c2-b759-206cfaff4982
+		summarizeBy: none
+		sourceColumn: IsWeekend
+
+	/// Peak (November-December) or Regular.
+	column Season
+		dataType: string
+		lineageTag: 57511ce2-01f4-5b56-99a5-1c88b03c974c
+		summarizeBy: none
+		sourceColumn: Season
+
+	partition DimDate = m
+		mode: import
+		source =
+				let
+				    FirstDate = Date.StartOfMonth(List.Min(FactParcel[ArrivalDate])),
+				    LastDate = Date.EndOfMonth(List.Max(FactParcel[ArrivalDate])),
+				    Dates = List.Dates(FirstDate, Duration.Days(LastDate - FirstDate) + 1, #duration(1, 0, 0, 0)),
+				    AsTable = Table.FromList(Dates, Splitter.SplitByNothing(), {"Date"}, null, ExtraValues.Error),
+				    #"Set date type" = Table.TransformColumnTypes(AsTable, {{"Date", type date}}),
+				    #"Add Year" = Table.AddColumn(#"Set date type", "Year", each Date.Year([Date]), Int64.Type),
+				    #"Add Quarter" = Table.AddColumn(#"Add Year", "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])), type text),
+				    #"Add MonthNumber" = Table.AddColumn(#"Add Quarter", "MonthNumber", each Date.Month([Date]), Int64.Type),
+				    #"Add MonthName" = Table.AddColumn(#"Add MonthNumber", "MonthName", each Date.ToText([Date], "MMM", "en-US"), type text),
+				    #"Add YearMonth" = Table.AddColumn(#"Add MonthName", "YearMonth", each Date.ToText([Date], "yyyy-MM", "en-US"), type text),
+				    #"Add MonthStart" = Table.AddColumn(#"Add YearMonth", "MonthStart", each Date.StartOfMonth([Date]), type date),
+				    #"Add WeekdayNumber" = Table.AddColumn(#"Add MonthStart", "WeekdayNumber", each Date.DayOfWeek([Date], Day.Monday) + 1, Int64.Type),
+				    #"Add WeekdayName" = Table.AddColumn(#"Add WeekdayNumber", "WeekdayName", each Date.ToText([Date], "ddd", "en-US"), type text),
+				    #"Add IsWeekend" = Table.AddColumn(#"Add WeekdayName", "IsWeekend", each [WeekdayNumber] >= 6, type logical),
+				    #"Add Season" = Table.AddColumn(#"Add IsWeekend", "Season", each if [MonthNumber] >= 11 then "Peak (Nov-Dec)" else "Regular", type text)
+				in
+				    #"Add Season"
+
+	annotation PBI_ResultType = Table
